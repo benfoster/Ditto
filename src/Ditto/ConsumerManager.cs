@@ -84,6 +84,21 @@ namespace Ditto
         {           
             var consumerId = GetConsumerId(runningConsumer.Consumer);
             long? checkpoint = await _checkpointManager.LoadCheckpointAsync(consumerId);
+
+            if (!checkpoint.HasValue)
+            {
+                if (runningConsumer.Consumer.InitialCheckpoint.HasValue)
+                {
+                    _logger.Information("Consumer {Consumer} subscribed to {StreamName} has no checkpoint set. Starting from initial checkpoint #{Checkpoint}", 
+                        runningConsumer.Consumer.GetType().Name, runningConsumer.Consumer.StreamName, runningConsumer.Consumer.InitialCheckpoint);
+                    checkpoint = runningConsumer.Consumer.InitialCheckpoint;
+                }
+                else
+                {
+                    _logger.Information("Consumer {Consumer} subscribed to {StreamName} has no checkpoint set. Starting from beginning of stream's source.",
+                        runningConsumer.Consumer.GetType().Name, runningConsumer.Consumer.StreamName);
+                }
+            }
             
             _logger.Information("Starting {Consumer} subscribed to {StreamName} from Checkpoint #{Checkpoint}",
                 runningConsumer.Consumer.GetType().Name, runningConsumer.Consumer.StreamName, checkpoint);

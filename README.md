@@ -15,17 +15,19 @@ The application can be configured via JSON (`appsettings.json`) or using Environ
 | SourceEventStoreConnectionString | Ditto_Settings:SourceEventStoreConnectionString |   | The source event store connection string |
 | DestinationEventStoreConnectionString | Ditto_Settings:DestinationEventStoreConnectionString |   | The destination event store connection string |
 | CheckpointSavingInterval | Ditto_Settings:CheckpointSavingInterval | 5000 | The interval in milliseconds before the current checkpoint is saved |
-| StreamIdentifiers | Ditto_Settings:StreamIdentifiers |  | Semi-colon (`;`) separated identifiers of streams that should be replicated* |
 | CheckpointManagerRetryCount | Ditto_Settings:CheckpointManagerRetryCount | 5 | The number of times the Checkpoint Manager should attempt to save the Checkpoint in the event of a failure
 | CheckpointManagerRetryInterval | Ditto_Settings:CheckpointManagerRetryInterval | 1000 | The interval in milliseconds between Checkpoint Manager retries |
 | ReplicationThrottleInterval | Ditto_Settings:ReplicationThrottleInterval | 0 | The interval in milliseconds to wait between events. This can be useful if you want to reduce the load on your source server |
+| StreamIdentifiers | Ditto_Settings:StreamIdentifiers |  | **Obsolete:** *This is left for backwards compatibility. Consider using StreamsToReplicate below.* Semi-colon (`;`) separated identifiers of streams that should be replicated* |
+| StreamsToReplicate | Ditto_StreamsToReplicate:Settings |  | A collection of *ReplicationSettings* which contains the identifier of a stream that should be replicated* and the optional *InitialCheckpoint* property which dictates the starting checkpoint to be used when one does not already exist. Please note that this will not perform version checking when appending to the destination stream | 
 
 
-**Note - When replicating category streams you will need to escape the `$` in the stream identifier under docker, for example, to replicate the category stream `$ce-emails` set your stream identifier to `$$ce-emails`.
+*Note - When replicating category streams you will need to escape the `$` in the stream identifier under docker, for example, to replicate the category stream `$ce-emails` set your stream identifier to `$$ce-emails`.
+
 
 ### Ditto Checkpoints
 
-Ditto will start a new catchup subscription for each stream you subscribe to and automatically take care of maintaining the last checkpoint of each stream. This means you can safely stop and start Ditto and it will pick up where it left off. 
+Ditto will start a new catchup subscription for each stream you subscribe to and automatically take care of maintaining the last checkpoint of each stream. This means you can safely stop and start Ditto and it will pick up where it left off.
 
 Ditto generates a checkpoint stream for each stream you subscribe to, named according to the source stream. For example, when subscribing to the `$ce-emails` stream, a new checkpoint stream will be created on the destination server called `Ditto_ReplicatingConsumer_ce_emails_Checkpoint`. Each time the Ditto Checkpoint Manager saves the current checkpoint, a `Checkpoint` event is written to the above stream, for example:
 
@@ -36,6 +38,8 @@ Ditto generates a checkpoint stream for each stream you subscribe to, named acco
 ```
 
 The Ditto Checkpoint Manager defers the writing of checkpoints according to the `CheckpointSavingInterval` setting. If you're replicating a large number of events it does not make sense to write the checkpoint after each event is replicated. We usually set this to around 10 seconds.
+
+If you need to start replicating a new stream from a specific checkpoint onward then you can optionally specify the *InitialCheckpoint* property which dictates the starting checkpoint to be used when one does not already exist.
 
 #### Idempotency
 

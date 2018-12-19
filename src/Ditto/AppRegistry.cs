@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
+using Ditto.Settings;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Configuration;
 using StructureMap;
@@ -24,6 +26,10 @@ namespace Ditto
             // Binds the "Settings" section from appsettings.json to AppSettings
             var settings = Bind<AppSettings>(configuration, "Settings");
             ForSingletonOf<AppSettings>().Use(settings);
+
+            // Binds the "StreamsToReplicate" section array from appsettings.json to StreamsToReplicateSettings
+            var streamsToReplicate = Bind<StreamsToReplicateSettings>(configuration, "StreamsToReplicate");
+            ForSingletonOf<StreamsToReplicateSettings>().Use(streamsToReplicate);
 
             // Automatically sets the Serilog source context to the requesting type
             For<ILogger>()
@@ -53,9 +59,22 @@ namespace Ditto
             For<IConsumerManager>().Use<ConsumerManager>();
 
             // Register replicating consumers
-            foreach (var streamName in settings.GetStreamsToReplicate())
+            foreach (var replicationSettings in streamsToReplicate.Settings)
             {
-                For<IConsumer>().Add(CreateReplicatingConsumer(streamName));
+                For<IConsumer>().Add(CreateReplicatingConsumer(replicationSettings));
+            }
+
+            // Kept for backwards compatibility
+#pragma warning disable CS0618 // Type or member is obsolete
+            var backwardsCompatibilityStreamsToReplicate = settings.GetStreamsToReplicate();
+#pragma warning restore CS0618 // Type or member is obsolete
+            if (backwardsCompatibilityStreamsToReplicate.Any())
+            {
+                logger.Warning("The StreamIdentifiers setting is obsolete but will be used for backwards compatibility.. Consider using the StreamsToReplicate setting instead.");
+                foreach (var streamToReplicate in backwardsCompatibilityStreamsToReplicate)
+                {
+                    For<IConsumer>().Add(CreateReplicatingConsumer(new ReplicationSettings { StreamIdentifier = streamToReplicate }));
+                }
             }
         }
 
@@ -72,14 +91,14 @@ namespace Ditto
             return settings;
         }
 
-        private static Expression<Func<IContext, IConsumer>> CreateReplicatingConsumer(string streamName)
+        private static Expression<Func<IContext, IConsumer>> CreateReplicatingConsumer(ReplicationSettings replicationSettings)
         {
             return ctx => 
                 new ReplicatingConsumer(
                     ctx.GetInstance<IEventStoreConnection>("Destination"), 
                     ctx.GetInstance<ILogger>().ForContext<ReplicatingConsumer>(),
                     ctx.GetInstance<AppSettings>(),
-                    streamName
+                    replicationSettings
                 );
         }
 

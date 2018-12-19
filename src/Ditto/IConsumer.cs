@@ -11,7 +11,12 @@ namespace Ditto
         /// Gets the name of the stream to consumer
         /// </summary>
         string StreamName { get; }
-        
+
+        /// <summary>
+        /// Gets the initial checkpoint to be used if none has been set previously.
+        /// </summary>
+        long? InitialCheckpoint { get; }
+
         /// <summary>
         /// Indicates whether an event with the specified type name can be consumed
         /// </summary>
