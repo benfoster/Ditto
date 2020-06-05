@@ -4,8 +4,8 @@ using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using StructureMap;
 
 namespace Ditto
 {
@@ -17,7 +17,7 @@ namespace Ditto
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly AutoResetEvent _closing = new AutoResetEvent(false);
-        private IContainer _container;
+        private IServiceProvider _serviceProvider;
         private AppService _service;
 
         /// <summary>
@@ -61,11 +61,8 @@ namespace Ditto
                 if (IsDevelopmentEnvironment())
                     _logger.Information(_configuration.Dump());
 
-                _container = new Container(cfg =>
-                    cfg.AddRegistry(new AppRegistry(_configuration, _logger))
-                );
-
-                _service = _container.GetInstance<AppService>();
+                _serviceProvider = AppRegistry.Apply(_configuration, new ServiceCollection()).BuildServiceProvider();
+                _service = _serviceProvider.GetService<AppService>();
                 await _service.StartAsync();
 
                 // Block until an exit signal is detected
