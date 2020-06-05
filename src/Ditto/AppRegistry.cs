@@ -11,26 +11,28 @@ namespace Ditto
     /// </summary>
     public class AppRegistry
     {
-        public static ServiceCollection Apply(IConfiguration configuration, ServiceCollection services)
+        public static ServiceCollection Register(IConfiguration configuration, ServiceCollection services)
         {
             services.AddSingleton<IConfiguration>(configuration);
             
             // Binds the "Settings" section from appsettings.json to AppSettings
             var settings = Bind<AppSettings>(configuration, "Settings");
             services.AddSingleton<AppSettings>(settings);
+            services.AddSingleton<AppService>();
 
             services.AddSingleton<ILogger>(Log.Logger);
 
             services.AddSingleton<IEventStoreConnection>(provider 
                 => ConnectionFactory.CreateEventStoreConnection(provider.GetService<ILogger>(), settings.SourceEventStoreConnectionString, "Ditto:Source"));
 
-            services.AddSingleton<IConsumerManager, ConsumerManager>();
+            services.AddSingleton<IConsumerManager, CompetingConsumerManager>();
             services.AddSingleton<ReplicatingConsumerFactory>();
 
             // Register replicating consumers
-            foreach (var streamName in settings.GetStreamsToReplicate())
+            foreach (var subscription in settings.Subscriptions)
             {
-                services.AddSingleton<IConsumer>(serviceProvider => serviceProvider.GetService<ReplicatingConsumerFactory>().CreateReplicatingConsumer(streamName));
+                services.AddSingleton<ICompetingConsumer>(serviceProvider 
+                    => serviceProvider.GetService<ReplicatingConsumerFactory>().CreateReplicatingConsumer(subscription.StreamName, subscription.GroupName));
             }
 
             return services;

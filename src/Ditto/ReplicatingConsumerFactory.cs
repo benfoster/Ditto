@@ -18,13 +18,14 @@ namespace Ditto
                 => ConnectionFactory.CreateEventStoreConnection(_logger, _appSettings.DestinationEventStoreConnectionString, "Ditto:Destination"));
         }
 
-        public IConsumer CreateReplicatingConsumer(string streamName)
+        public ICompetingConsumer CreateReplicatingConsumer(string streamName, string groupName)
         {
             return new ReplicatingConsumer(
                 _destinationConnection.Value,
                 _logger.ForContext<ReplicatingConsumer>(),
                 _appSettings,
-                streamName
+                streamName,
+                groupName
             );
         }
     }

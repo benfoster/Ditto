@@ -61,7 +61,7 @@ namespace Ditto
                 if (IsDevelopmentEnvironment())
                     _logger.Information(_configuration.Dump());
 
-                _serviceProvider = AppRegistry.Apply(_configuration, new ServiceCollection()).BuildServiceProvider();
+                _serviceProvider = AppRegistry.Register(_configuration, new ServiceCollection()).BuildServiceProvider();
                 _service = _serviceProvider.GetService<AppService>();
                 await _service.StartAsync();
 
@@ -128,7 +128,7 @@ namespace Ditto
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile("appsettings.local.json", optional: true)
+                .AddJsonFile($"appsettings.{CurrentEnvironment}.json", optional: true)
                 .AddEnvironmentVariables(prefix: "Ditto_")
                 .Build();
         }
@@ -137,10 +137,8 @@ namespace Ditto
         /// Determines whether the application is running in Development mode
         /// </summary>
         /// <returns>True if running in Development, otherwise False</returns>
-        private static bool IsDevelopmentEnvironment()
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            return "Development".Equals(environment, StringComparison.OrdinalIgnoreCase);
-        }
+        private static bool IsDevelopmentEnvironment() => "Development".Equals(CurrentEnvironment, StringComparison.OrdinalIgnoreCase);
+        
+        private static string CurrentEnvironment => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     }
 }
