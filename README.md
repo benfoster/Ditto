@@ -33,19 +33,14 @@ We usually subscribe to category streams e.g. `$ce-emails` and then populate the
 
 ### Running the example
 
-To run the example, clone the repository and run `docker-compose up --build`. This will start:
+To run the example, clone the repository and run `docker-compose -f docker-compose.yml -f docker-compose.apps.yml up --build`. This will start:
 
 1. Source Event Store at [http://localhost:2113](http://localhost:2113)
 2. Destination Event Store at [http://localhost:4113](http://localhost:4113)
 3. SEQ at [http://localhost:5341](http://localhost:5341)
+4. Ditto
 
 The docker setup will automatically seed the source event store with "customer" events that you can view at http://localhost:2113/web/index.html#/streams/$ce-customer and setup a persistent subscription for the `$ce-customer` category stream.
-
-To start Ditto browse to `/src/Ditto` and run:
-
-```
-dotnet run
-```
 
 Ditto will connect to the persistent subscription and start consuming events.
 
