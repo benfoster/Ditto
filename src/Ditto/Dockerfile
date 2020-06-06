@@ -9,12 +9,12 @@ RUN dotnet restore Ditto/Ditto.csproj
 
 # copy everything else and build
 COPY ./src/Ditto/ ./Ditto/
-RUN dotnet publish Ditto/Ditto.csproj -c $BUILDCONFIG -o out /p:Version=$VERSION
+RUN dotnet publish Ditto/Ditto.csproj --runtime linux-musl-x64 -c $BUILDCONFIG -o out /p:Version=$VERSION -p:PublishTrimmed=true
 
 # build runtime image
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1-alpine
+FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-alpine
 WORKDIR /app
 COPY --from=base /out ./
 
 EXPOSE 5000
-ENTRYPOINT ["dotnet", "Ditto.dll"]
+ENTRYPOINT ["./Ditto"]
