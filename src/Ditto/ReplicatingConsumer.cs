@@ -5,6 +5,9 @@ using SerilogTimings.Extensions;
 
 namespace Ditto
 {
+    /// <summary>
+    /// Stream consumer that replicates to the destination event store
+    /// </summary>
     public class ReplicatingConsumer : ICompetingConsumer
     {
         private readonly IEventStoreConnection _connection;
@@ -25,35 +28,28 @@ namespace Ditto
         public string GroupName { get; }
         public bool CanConsume(string eventType) => true;
 
-        public void Consume(string eventType, ResolvedEvent e)
+        public void Consume(string eventType, ResolvedEvent resolvedEvent)
         {
+            if (string.IsNullOrWhiteSpace(eventType)) throw new ArgumentException("Event type required", nameof(eventType));
+            
             var eventData = new EventData(
-                e.Event.EventId,
-                e.Event.EventType,
+                resolvedEvent.Event.EventId,
+                resolvedEvent.Event.EventType,
                 true,
-                e.Event.Data,
-                e.Event.Metadata
+                resolvedEvent.Event.Data,
+                resolvedEvent.Event.Metadata
             );
 
-            using (_logger.TimeOperation("Replicating {EventType} #{EventNumber} from {StreamName}",
-                e.Event.EventType,
-                e.Event.EventNumber,
-                e.Event.EventStreamId))
+            using (_logger.ForContext("OriginalEventNumber", resolvedEvent.OriginalEventNumber).TimeOperation("Replicating {EventType} #{EventNumber} from {StreamName}",
+                resolvedEvent.Event.EventType,
+                resolvedEvent.Event.EventNumber,
+                resolvedEvent.Event.EventStreamId))
             {
-                _connection.AppendToStreamAsync(e.Event.EventStreamId, e.Event.EventNumber - 1, eventData).GetAwaiter().GetResult();
+                _connection.AppendToStreamAsync(resolvedEvent.Event.EventStreamId, resolvedEvent.Event.EventNumber - 1, eventData).GetAwaiter().GetResult();
             }
 
             if (_settings.ReplicationThrottleInterval.GetValueOrDefault() > 0)
                 Thread.Sleep(_settings.ReplicationThrottleInterval.Value);
-        }
-
-        public override string ToString()
-        {
-            var normalised = StreamName
-                .Replace("$", "")
-                .Replace("-", "_"); // To avoid category stream breaking down checkpoint streams
-
-            return $"ReplicatingConsumer_{normalised}";
         }
     }
 }

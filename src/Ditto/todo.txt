@@ -1,4 +1,4 @@
 
-Include the projection event number in the logs
 Docker file
-Seq/DD logging
+Example
+Skip expected version setting
