@@ -38,7 +38,6 @@ namespace Ditto
             return services;
         }
         
-
         /// <summary>
         /// Convenience method for binding configuration settings to strongly typed objects
         /// </summary>

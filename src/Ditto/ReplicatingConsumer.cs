@@ -40,12 +40,18 @@ namespace Ditto
                 resolvedEvent.Event.Metadata
             );
 
-            using (_logger.ForContext("OriginalEventNumber", resolvedEvent.OriginalEventNumber).TimeOperation("Replicating {EventType} #{EventNumber} from {StreamName}",
+            using (_logger.TimeOperation("Replicating {EventType} #{EventNumber} from {StreamName} (Original Event: #{OriginalEventNumber})",
                 resolvedEvent.Event.EventType,
                 resolvedEvent.Event.EventNumber,
-                resolvedEvent.Event.EventStreamId))
+                resolvedEvent.Event.EventStreamId,
+                resolvedEvent.OriginalEventNumber))
             {
-                _connection.AppendToStreamAsync(resolvedEvent.Event.EventStreamId, resolvedEvent.Event.EventNumber - 1, eventData).GetAwaiter().GetResult();
+                _connection.AppendToStreamAsync(
+                    resolvedEvent.Event.EventStreamId, 
+                    _settings.SkipVersionCheck ? ExpectedVersion.Any : resolvedEvent.Event.EventNumber - 1, 
+                    eventData
+                )
+                .GetAwaiter().GetResult();
             }
 
             if (_settings.ReplicationThrottleInterval.GetValueOrDefault() > 0)

@@ -33,6 +33,11 @@ namespace Ditto
         /// </summary>
         public int? PersistentSubscriptionBufferSize { get; set; }
 
+        /// <summary>
+        /// Gets whether the event version check should be skipped when replicating events
+        /// </summary>
+        public bool SkipVersionCheck { get; set; }
+
         public class Subscription
         {
             public string StreamName { get; set; }

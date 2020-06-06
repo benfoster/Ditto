@@ -1,4 +1,2 @@
 
 Docker file
-Example
-Skip expected version setting
