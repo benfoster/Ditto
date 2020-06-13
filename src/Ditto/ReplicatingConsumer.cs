@@ -12,7 +12,7 @@ namespace Ditto
     /// Stream consumer that replicates to the destination event store
     /// </summary>
     public class ReplicatingConsumer : ICompetingConsumer
-    {        
+    {
         private readonly IEventStoreConnection _connection;
         private readonly Serilog.ILogger _logger;
         private readonly AppSettings _settings;
@@ -42,6 +42,18 @@ namespace Ditto
         public async Task ConsumeAsync(string eventType, ResolvedEvent resolvedEvent)
         {
             if (string.IsNullOrWhiteSpace(eventType)) throw new ArgumentException("Event type required", nameof(eventType));
+
+            if (_settings.ReadOnly)
+            {
+                _logger.Debug("Received {EventType} #{EventNumber} from {StreamName} (Original Event: #{OriginalEventNumber})",
+                    resolvedEvent.Event.EventType,
+                    resolvedEvent.Event.EventNumber,
+                    resolvedEvent.Event.EventStreamId,
+                    resolvedEvent.OriginalEventNumber
+                );
+
+                return;
+            }
 
             var eventData = new EventData(
                 resolvedEvent.Event.EventId,
