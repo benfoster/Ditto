@@ -91,21 +91,32 @@ namespace Ditto.Kinesis
 
             var wrapper = new EventWrapper
             {
+                StreamId = resolvedEvent.Event.EventStreamId,
                 EventId = resolvedEvent.Event.EventId,
                 EventNumber = resolvedEvent.Event.EventNumber,
                 EventType = resolvedEvent.Event.EventType,
+                EventTimestamp = resolvedEvent.Event.Created,
                 Data = dataJson,
                 Metadata = metadataJson
             };
 
-            return new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wrapper, SerializerSettings.Default)));
+            string json = JsonConvert.SerializeObject(wrapper, Formatting.None, SerializerSettings.Default);
+            return new MemoryStream(Encoding.UTF8.GetBytes(json));
         }
 
         private class EventWrapper
         {
+            public EventWrapper()
+            {
+                ReplicatedOn = DateTime.UtcNow;
+            }
+
+            public string StreamId { get; set; }
             public Guid EventId { get; set; }
             public long EventNumber { get; set; }
             public string EventType { get; set; }
+            public DateTime EventTimestamp { get; set; }
+            public DateTime ReplicatedOn { get; set; }
 
             [JsonConverter(typeof(JsonStringConverter))]
             public string Data { get; set; }
