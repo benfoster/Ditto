@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Prometheus;
@@ -83,7 +82,7 @@ namespace Ditto
                 await SetStreamMetadataAsync(resolvedEvent.Event.EventStreamId);
 
             if (_settings.ReplicationThrottleInterval.GetValueOrDefault() > 0)
-                Thread.Sleep(_settings.ReplicationThrottleInterval.Value);
+                await Task.Delay(_settings.ReplicationThrottleInterval.Value);
         }
 
         private async Task SetStreamMetadataAsync(string stream)

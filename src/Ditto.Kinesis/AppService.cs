@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Serilog;
 
-namespace Ditto
+namespace Ditto.Kinesis
 {
     /// <summary>
     /// The entry point for your application logic
