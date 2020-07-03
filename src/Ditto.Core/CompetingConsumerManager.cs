@@ -119,6 +119,9 @@ namespace Ditto
                 
                 if (!e.IsResolved) // Handle deleted streams
                 {
+                    _logger.Information("Event #{EventNumber} from {StreamName} is not resolved. Skipping", e.OriginalEventNumber, consumer.StreamName);
+                    
+                    // log
                     DittoMetrics.UnresolvedEvents.WithConsumerLabels(consumer).Inc();
                     sub.Fail(e, PersistentSubscriptionNakEventAction.Skip, "Unresolved Event");
                     return;
@@ -130,6 +133,8 @@ namespace Ditto
 
                 if (!consumer.CanConsume(e.Event.EventType))
                 {
+                    _logger.Information("Unable to consume {EventType} #{EventNumber} from {StreamName}. Skipping", e.Event.EventType, e.OriginalEventNumber, consumer.StreamName);
+
                     DittoMetrics.SkippedEvents.WithConsumerLabels(consumer).Inc();
                     sub.Fail(e, PersistentSubscriptionNakEventAction.Skip, "Cannot consume");
                     return;
@@ -167,7 +172,8 @@ namespace Ditto
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error(ex, "Error stopping persistent subscription following subscription dropped with reason {Reason}", reason);
+                        _logger.Error(ex, "Error stopping persistent subscription to {StreamName} in group {GroupName} with reason {Reason}", 
+                            runningConsumer.Consumer.StreamName, runningConsumer.Consumer.GroupName, reason.ToString());
                     }
                 }
 
@@ -177,7 +183,7 @@ namespace Ditto
                         GetConsumerId(runningConsumer.Consumer), runningConsumer.Consumer.StreamName, runningConsumer.Consumer.GroupName, reason.ToString());
 
                     if (reason == SubscriptionDropReason.EventHandlerException)
-                        _logger.Fatal("Subscription to {StreamName} in group {GroupName} has been dropped due to an exception. Please restart", runningConsumer.Consumer.StreamName, runningConsumer.Consumer.GroupName);
+                        _logger.Fatal(exception, "Subscription to {StreamName} in group {GroupName} has been dropped due to an exception. Please restart", runningConsumer.Consumer.StreamName, runningConsumer.Consumer.GroupName);
                     else
                         StartConsumerAsync(runningConsumer).GetAwaiter().GetResult();
                 }
