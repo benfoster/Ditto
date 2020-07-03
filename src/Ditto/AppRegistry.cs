@@ -16,8 +16,9 @@ namespace Ditto
             services.AddSingleton<IConfiguration>(configuration);
             
             // Binds the "Settings" section from appsettings.json to AppSettings
-            var settings = configuration.Bind<AppSettings>("Settings");
-            services.AddSingleton<AppSettings>(settings);
+            var settings = configuration.Bind<DittoSettings>("Settings");
+            services.AddSingleton(settings);
+
             services.AddSingleton<AppService>();
 
             services.AddSingleton<ILogger>(Log.Logger);

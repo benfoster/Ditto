@@ -6,7 +6,7 @@ namespace Ditto
     /// <summary>
     /// The application settings
     /// </summary>
-    public class AppSettings
+    public class DittoSettings
     {
         /// <summary>
         /// Gets or sets the connection string to the source Event Store

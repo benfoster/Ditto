@@ -6,11 +6,11 @@ namespace Ditto
 {
     public class ReplicatingConsumerFactory
     {
-        private readonly AppSettings _appSettings;
+        private readonly DittoSettings _appSettings;
         private readonly ILogger _logger;
         private Lazy<IEventStoreConnection> _destinationConnection;
 
-        public ReplicatingConsumerFactory(AppSettings appSettings, ILogger logger)
+        public ReplicatingConsumerFactory(DittoSettings appSettings, ILogger logger)
         {
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
