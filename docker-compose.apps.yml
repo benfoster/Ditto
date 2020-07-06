@@ -28,7 +28,7 @@ services:
   ditto-kinesis-consumer:
     build:
       context: .
-      dockerfile: ./src/Ditto/Dockerfile
+      dockerfile: ./src/Ditto.Kinesis/Dockerfile
     depends_on:
       - seq
       - eventstore-source
@@ -45,3 +45,8 @@ services:
       - Ditto_Serilog__WriteTo__0__Args:restrictedToMinimumLevel=Debug
       - Ditto_Serilog__WriteTo__1__Args:serverUrl=http://ditto-seq:5341
       - Ditto_Serilog__WriteTo__1__Args:apiKey=xxx
+      - Ditto_Aws__ServiceURL=http://localstack:4566/
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_KEY=test
+      - AWS_EC2_METADATA_DISABLED=true
+      - AWS_DEFAULT_REGION=eu-west-1
