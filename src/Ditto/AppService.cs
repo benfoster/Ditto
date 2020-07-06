@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Ditto.Core;
 using Serilog;
 
 namespace Ditto

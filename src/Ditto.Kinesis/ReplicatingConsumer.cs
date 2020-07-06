@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon.Kinesis;
 using Amazon.Kinesis.Model;
+using Ditto.Core;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
 using Prometheus;

@@ -1,4 +1,5 @@
 using System;
+using Ditto.Core;
 using EventStore.ClientAPI;
 using ILogger = Serilog.ILogger;
 
@@ -8,7 +9,7 @@ namespace Ditto
     {
         private readonly DittoSettings _appSettings;
         private readonly ILogger _logger;
-        private Lazy<IEventStoreConnection> _destinationConnection;
+        private readonly Lazy<IEventStoreConnection> _destinationConnection;
 
         public ReplicatingConsumerFactory(DittoSettings appSettings, ILogger logger)
         {

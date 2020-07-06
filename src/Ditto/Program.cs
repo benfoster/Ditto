@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using Ditto.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prometheus;

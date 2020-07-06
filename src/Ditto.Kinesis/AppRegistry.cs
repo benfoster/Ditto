@@ -1,5 +1,6 @@
 using System;
 using Amazon.Kinesis;
+using Ditto.Core;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

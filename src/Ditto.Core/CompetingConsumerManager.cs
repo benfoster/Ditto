@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 
-namespace Ditto
+namespace Ditto.Core
 {
     /// <summary>
     /// Manages the lifetime of multiple Event Store competing consumers

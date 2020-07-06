@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Ditto.Core;
 using EventStore.ClientAPI;
 using Prometheus;
 using Serilog.Events;

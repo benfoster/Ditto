@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ditto
+namespace Ditto.Core
 {
     /// <summary>
     /// The application settings
