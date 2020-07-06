@@ -24,7 +24,10 @@
           "args": [],
           "cwd": "${workspaceFolder}/src/Ditto.Kinesis",
           "console": "internalConsole",
-          "stopAtEntry": false
+          "stopAtEntry": false,
+          "env": {
+            "AWS_RETRY_MODE": "Standard"
+          }
       },
         {
             "name": ".NET Core Attach",

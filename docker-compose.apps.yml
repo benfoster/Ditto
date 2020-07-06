@@ -50,3 +50,4 @@ services:
       - AWS_SECRET_KEY=test
       - AWS_EC2_METADATA_DISABLED=true
       - AWS_DEFAULT_REGION=eu-west-1
+      - AWS_RETRY_MODE=Standard

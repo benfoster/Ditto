@@ -42,6 +42,7 @@ services:
       - DEFAULT_REGION=eu-west-1 # This is the region where your localstack mocks to be running
       - DATA_DIR=/tmp/localstack/data
       - LAMBDA_EXECUTOR=local
+      - KINESIS_ERROR_PROBABILITY=0.5
     volumes:
       - ./docker-setup/localstack/:/docker-entrypoint-initaws.d/
 
